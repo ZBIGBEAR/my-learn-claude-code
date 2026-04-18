@@ -1,2 +1,3 @@
 .venv/
 .env
+llm/__pycache__/*
