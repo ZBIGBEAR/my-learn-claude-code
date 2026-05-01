@@ -95,7 +95,12 @@ TOOL_HANDLERS = {
     "write_file": lambda **kw: run_write(kw["path"], kw["content"]),
     "edit_file": lambda **kw: run_edit(kw["path"], kw["old_text"], kw["new_text"]),
     # "todo": lambda **kw: TODO.update(kw["items"]),
+    "compact":    lambda **kw: compact_history(),
 }
+
+
+def compact_history():
+    return "Compacting conversation..."
 
 def SetTool(name,args):
     TOOL_HANDLERS[name] = args

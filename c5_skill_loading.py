@@ -1,9 +1,65 @@
 from llm.client import chat
-from util.util import TOOL_HANDLERS
-
+from util.util import TOOL_HANDLERS, SetTool
+from util.skill_loading import SKILL_REGISTRY,SKILL_LOADING_SYSTEM
 from util.util import extract_text
 
-
+TOOLS = [
+    {
+        "name": "bash",
+        "description": "Run a shell command.",
+        "input_schema": {
+            "type": "object",
+            "properties": {"command": {"type": "string"}},
+            "required": ["command"],
+        },
+    },
+    {
+        "name": "read_file",
+        "description": "Read file contents.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string"},
+                "limit": {"type": "integer"},
+            },
+            "required": ["path"],
+        },
+    },
+    {
+        "name": "write_file",
+        "description": "Write content to a file.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string"},
+                "content": {"type": "string"},
+            },
+            "required": ["path", "content"],
+        },
+    },
+    {
+        "name": "edit_file",
+        "description": "Replace exact text in a file once.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string"},
+                "old_text": {"type": "string"},
+                "new_text": {"type": "string"},
+            },
+            "required": ["path", "old_text", "new_text"],
+        },
+    },
+    {
+        "name": "load_skill",
+        "description": "Load the full body of a named skill into the current context.",
+        "input_schema": {
+            "type": "object",
+            "properties": {"name": {"type": "string"}},
+            "required": ["name"],
+        },
+    },
+]
 
 # 处理用户的一次对话
 def agent_loop(history: list, count: int, sub_count: int):  
@@ -13,7 +69,7 @@ def agent_loop(history: list, count: int, sub_count: int):
         # 打印对话次数和当前调用ai次数
         print(f"\n======对话轮次：{count}，当前轮对话调用ai次数：{sub_count}======\n")
         
-        response = chat(history)
+        response = chat(history, system=SKILL_LOADING_SYSTEM, tools=TOOLS)
         # 提取ai回复的文本内容
         print(f"\n======ai回复：{response.content}，stop_reason：{response.stop_reason}======\n")
         history.append({"role": "assistant", "content": response.content})
@@ -45,6 +101,7 @@ if __name__ == "__main__":
     history = []
     # 对话轮次
     count = 0
+    SetTool("load_skill", SKILL_REGISTRY.load_full_text)
     while True:
         count += 1
         try:

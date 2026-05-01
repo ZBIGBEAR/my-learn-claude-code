@@ -84,6 +84,16 @@ TOOLS = [
             "required": ["items"],
         },
     },
+    {
+        "name": "compact",
+        "description": "Summarize earlier conversation so work can continue in a smaller context.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "focus": {"type": "string"},
+            },
+        },
+    },
 ]
 
 _client = None
@@ -101,13 +111,16 @@ def get_client():
 
 def chat(messages: list, **kwargs):
     client = get_client()
-    if "max_tokens" not in kwargs:
-        kwargs["max_tokens"] = 1024
+    max_tokens = kwargs.get("max_tokens", 1024)
+
+    system = kwargs.get("system", SYSTEM)
+    tools = kwargs.get("tools", TOOLS)
+        # 
     response = client.messages.create(
         model=MODEL,
-        system=SYSTEM,
+        system=system,
         messages=messages,
-        tools=TOOLS,
-        **kwargs
+        tools=tools,
+        max_tokens=max_tokens
     )
     return response

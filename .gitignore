@@ -2,3 +2,4 @@
 .env
 llm/__pycache__/*
 util/__pycache__/*
+.transcripts/*

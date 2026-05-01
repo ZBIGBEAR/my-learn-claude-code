@@ -1,7 +1,9 @@
 from llm.client import chat
-from util.util import execute_tool_calls
+from util.util import TOOL_HANDLERS
 
 from util.util import extract_text
+from util.util import SetTool
+from util.todo_manager import TODO
 
 
 
@@ -10,6 +12,7 @@ def agent_loop(history: list, count: int, sub_count: int):
     # 打印对话次数
     print(f"\n======对话轮次：{count}======\n")
     while True:
+        used_todo = False
         # 打印对话次数和当前调用ai次数
         print(f"\n======对话轮次：{count}，当前轮对话调用ai次数：{sub_count}======\n")
         
@@ -23,17 +26,33 @@ def agent_loop(history: list, count: int, sub_count: int):
             break
 
         # 执行工具调用
-        results = execute_tool_calls(response.content)
-        if not results:
-            # 工具调用失败，直接返回
-            state.transition_reason = None
-            break
+        results = []
+        for block in response.content:
+            if block.type == "tool_use":
+                handler = TOOL_HANDLERS.get(block.name)
+                print(f"\n=======handler: {handler},args: {block.input}======\n")
+                output = handler(**block.input) if handler else f"Unknown tool: {block.name}"
+                print(f"> {block.name}:")
+                print(output[:200])
+                results.append({"type": "tool_result", "tool_use_id": block.id, "content": output})
+                if block.name == "todo":
+                    used_todo = True
         # 把工具调用的结果添加到历史记录中
         history.append({"role": "user", "content": results})
+
+        if used_todo:
+            print(f"已经调用了todo, 重置计划提醒间隔")
+        else:
+            reminder = TODO.reminder()
+            print(f"当前计划提醒：{reminder}")
+            if reminder:
+                results.insert(0, {"type": "text", "text": reminder})
         # 继续执行下一次对话
         sub_count += 1
 
 if __name__ == "__main__":
+    SetTool("todo", TODO.update)
+
     # 这是个二维数组，记录启动之后所有对话
     # 第一维度是对话轮次
     # 第二维度是对话内容。每次对话包含用户和和助手的对话，以及工具调用的结果，ai可能有多个消息，所以是个数组
@@ -43,6 +62,7 @@ if __name__ == "__main__":
     count = 0
     while True:
         count += 1
+
         try:
             query = input(">> ")
         except (EOFError, KeyboardInterrupt):

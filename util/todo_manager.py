@@ -1,11 +1,5 @@
 from dataclasses import dataclass, field
 
-
-
-PLAN_REMINDER_INTERVAL = 3
-
-
-
 @dataclass
 class PlanItem:
     content: str
@@ -16,16 +10,12 @@ class PlanItem:
 @dataclass
 class PlanningState:
     items: list[PlanItem] = field(default_factory=list)
-    rounds_since_update: int = 0
 
 class TodoManager:
     def __init__(self):
         self.state = PlanningState()
 
     def update(self, items: list) -> str:
-        if len(items) > 12:
-            raise ValueError("Keep the session plan short (max 12 items)")
-
         normalized = []
         in_progress_count = 0
         for index, raw_item in enumerate(items):
@@ -50,15 +40,10 @@ class TodoManager:
             raise ValueError("Only one plan item can be in_progress")
 
         self.state.items = normalized
-        self.state.rounds_since_update = 0
         return self.render()
-    def note_round_without_update(self) -> None:
-        self.state.rounds_since_update += 1
 
     def reminder(self) -> str | None:
         if not self.state.items:
-            return None
-        if self.state.rounds_since_update < PLAN_REMINDER_INTERVAL:
             return None
         return "<reminder>Refresh your current plan before continuing.</reminder>"
 
