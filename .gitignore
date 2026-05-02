@@ -1,5 +1,8 @@
 .venv/
 .env
 llm/__pycache__/*
-util/__pycache__/*
 .transcripts/*
+.tasks/*
+.memory/*
+.transcripts/*
+util/__pycache__/*

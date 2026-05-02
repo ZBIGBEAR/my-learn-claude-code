@@ -1,0 +1,9 @@
+{
+  "id": 5,
+  "subject": "12306抢票系统 - 抢票核心引擎开发",
+  "description": "实现抢票核心逻辑，包括多线程抢票、队列管理、锁机制等",
+  "status": "pending",
+  "blockedBy": [],
+  "blocks": [],
+  "owner": ""
+}

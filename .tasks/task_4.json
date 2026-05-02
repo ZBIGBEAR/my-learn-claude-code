@@ -1,0 +1,9 @@
+{
+  "id": 4,
+  "subject": "12306抢票系统 - 车票查询模块开发",
+  "description": "实现按日期、出发地、目的地查询余票的功能",
+  "status": "pending",
+  "blockedBy": [],
+  "blocks": [],
+  "owner": ""
+}

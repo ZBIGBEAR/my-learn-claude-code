@@ -1,0 +1,9 @@
+{
+  "id": 8,
+  "subject": "12306抢票系统 - 测试与部署",
+  "description": "编写单元测试和集成测试，确保系统稳定性和正确性",
+  "status": "pending",
+  "blockedBy": [],
+  "blocks": [],
+  "owner": ""
+}
