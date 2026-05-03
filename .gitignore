@@ -6,3 +6,6 @@ llm/__pycache__/*
 .memory/*
 .transcripts/*
 util/__pycache__/*
+.team/*
+.claude/*
+.runtime_tasks/*

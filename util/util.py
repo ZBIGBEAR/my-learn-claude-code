@@ -1,5 +1,5 @@
 import subprocess
-import os
+import os,datetime,time
 from pathlib import Path
 WORKDIR = Path.cwd()
 
@@ -104,3 +104,58 @@ def compact_history():
 
 def SetTool(name,args):
     TOOL_HANDLERS[name] = args
+
+# 检查cron表达式是否匹配给定的datetime
+def cron_matches(expr: str, dt: datetime) -> bool:
+    """
+    Check if a 5-field cron expression matches a given datetime.
+
+    Fields: minute hour day-of-month month day-of-week
+    Supports: * (any), */N (every N), N (exact), N-M (range), N,M (list)
+
+    No external dependencies -- simple manual matching.
+    """
+    fields = expr.strip().split()
+    if len(fields) != 5:
+        return False
+
+    values = [dt.minute, dt.hour, dt.day, dt.month, dt.weekday()]
+    # Python weekday: 0=Monday; cron: 0=Sunday. Convert.
+    cron_dow = (dt.weekday() + 1) % 7
+    values[4] = cron_dow
+    ranges = [(0, 59), (0, 23), (1, 31), (1, 12), (0, 6)]
+
+    for field, value, (lo, hi) in zip(fields, values, ranges):
+        if not _field_matches(field, value, lo, hi):
+            return False
+    return True
+
+# 检查cron表达式字段是否匹配给定值
+def _field_matches(field: str, value: int, lo: int, hi: int) -> bool:
+    """Match a single cron field against a value."""
+    if field == "*":
+        return True
+
+    for part in field.split(","):
+        # Handle step: */N or N-M/S
+        step = 1
+        if "/" in part:
+            part, step_str = part.split("/", 1)
+            step = int(step_str)
+
+        if part == "*":
+            # */N -- check if value is on the step grid
+            if (value - lo) % step == 0:
+                return True
+        elif "-" in part:
+            # Range: N-M
+            start, end = part.split("-", 1)
+            start, end = int(start), int(end)
+            if start <= value <= end and (value - start) % step == 0:
+                return True
+        else:
+            # Exact value
+            if int(part) == value:
+                return True
+
+    return False
