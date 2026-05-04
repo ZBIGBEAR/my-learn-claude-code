@@ -57,23 +57,12 @@ my-learn-claude-code/
 │   ├── background_tasks.py # 后台任务
 │   ├── cron_scheduler.py # 定时调度
 │   └── ...
-├── backend/              # Todo 应用后端（Node.js + Express + SQLite）
-├── frontend/             # Todo 应用前端（React + Vite）
-├── docs/
-│   └── 12306-architecture-design.md  # 架构设计文档
-├── .team/                # 团队 agent 状态（inbox 等）
-├── .tasks/               # 任务板文件
-├── .memory/              # 持久记忆文件
 ├── .env                  # 环境变量
-└── requirements.txt      # Python 依赖
 ```
 
 ## 快速开始
 
 ```bash
-# 安装依赖
-pip install -r requirements.txt
-
 # 配置环境变量（复制 .env.example 为 .env，填入 ANTHROPIC_API_KEY 等）
 cp .env.example .env
 
