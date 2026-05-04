@@ -12,3 +12,4 @@ util/__pycache__/*
 docs/*
 frontend/*
 backend/*
+.worktrees/*
