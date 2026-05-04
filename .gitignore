@@ -12,4 +12,5 @@ util/__pycache__/*
 docs/*
 frontend/*
 backend/*
-.worktrees/*
+.claude_plugin/*
+.worktree/*
