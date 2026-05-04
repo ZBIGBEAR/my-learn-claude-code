@@ -9,3 +9,6 @@ util/__pycache__/*
 .team/*
 .claude/*
 .runtime_tasks/*
+docs/*
+frontend/*
+backend/*
