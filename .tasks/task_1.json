@@ -1,9 +1,0 @@
-{
-  "id": 1,
-  "subject": "12306抢票系统 - 需求分析与架构设计",
-  "description": "设计12306抢票系统的整体架构，包括系统模块划分、技术栈选择、核心流程设计",
-  "status": "in_progress",
-  "blockedBy": [],
-  "blocks": [],
-  "owner": ""
-}

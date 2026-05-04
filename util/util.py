@@ -1,7 +1,13 @@
 import subprocess
-import os,datetime,time
+import threading
+import os
+import datetime
+import time
+import json
 from pathlib import Path
 WORKDIR = Path.cwd()
+TASKS_DIR = WORKDIR / ".tasks"
+CLAIM_EVENTS_PATH = TASKS_DIR / "claim_events.jsonl"
 
 def execute_tool_calls(response_content) -> list[dict]:
     results = []
@@ -159,3 +165,91 @@ def _field_matches(field: str, value: int, lo: int, hi: int) -> bool:
                 return True
 
     return False
+
+_claim_lock = threading.Lock()
+
+def claim_task(
+    task_id: int,
+    owner: str,
+    role: str | None = None,
+    source: str = "manual",
+) -> str:
+    with _claim_lock:
+        path = TASKS_DIR / f"task_{task_id}.json"
+        if not path.exists():
+            return f"Error: Task {task_id} not found"
+        task = json.loads(path.read_text())
+        if not is_claimable_task(task, role):
+            return f"Error: Task {task_id} is not claimable for role={role or '(any)'}"
+        task["owner"] = owner
+        task["status"] = "in_progress"
+        task["claimed_at"] = time.time()
+        task["claim_source"] = source
+        path.write_text(json.dumps(task, indent=2,ensure_ascii=False), encoding="utf-8")
+    _append_claim_event({
+        "event": "task.claimed",
+        "task_id": task_id,
+        "owner": owner,
+        "role": role,
+        "source": source,
+        "ts": time.time(),
+    })
+    return f"Claimed task #{task_id} for {owner} via {source}"
+
+
+# -- Identity re-injection after compression --
+def make_identity_block(name: str, role: str, team_name: str) -> dict:
+    return {
+        "role": "user",
+        "content": f"<identity>You are '{name}', role: {role}, team: {team_name}. Continue your work.</identity>",
+    }
+
+
+def ensure_identity_context(messages: list, name: str, role: str, team_name: str):
+    if messages and "<identity>" in str(messages[0].get("content", "")):
+        return
+    messages.insert(0, make_identity_block(name, role, team_name))
+    messages.insert(1, {"role": "assistant", "content": f"I am {name}. Continuing."})
+
+# -- Task board scanning --
+def _append_claim_event(payload: dict):
+    TASKS_DIR.mkdir(parents=True, exist_ok=True)
+    with CLAIM_EVENTS_PATH.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(payload) + "\n")
+
+
+def _task_allows_role(task: dict, role: str | None) -> bool:
+    required_role = task.get("claim_role") or task.get("required_role") or ""
+    if not required_role:
+        return True
+    return bool(role) and role == required_role
+
+
+def is_claimable_task(task: dict, role: str | None = None) -> bool:
+    return (
+        task.get("status") == "pending"
+        and not task.get("owner")
+        and not task.get("blockedBy")
+        and _task_allows_role(task, role)
+    )
+
+
+def scan_unclaimed_tasks(role: str | None = None) -> list:
+    TASKS_DIR.mkdir(exist_ok=True)
+    unclaimed = []
+    for f in sorted(TASKS_DIR.glob("task_*.json")):
+        task = json.loads(f.read_text())
+        if is_claimable_task(task, role):
+            unclaimed.append(task)
+    return unclaimed
+
+def detect_repo_root(cwd: Path) -> Path | None:
+    try:
+        r = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=cwd, capture_output=True, text=True, timeout=10,
+        )
+        root = Path(r.stdout.strip())
+        return root if r.returncode == 0 and root.exists() else None
+    except Exception:
+        return None

@@ -1,9 +1,0 @@
-{
-  "id": 6,
-  "subject": "12306抢票系统 - 订单管理模块开发",
-  "description": "实现订单创建、支付、取消、退款等订单管理功能",
-  "status": "pending",
-  "blockedBy": [],
-  "blocks": [],
-  "owner": ""
-}

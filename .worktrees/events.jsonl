@@ -1,0 +1,6 @@
+{"event": "worktree.create.before", "ts": 1777887507.630709, "worktree": "frontend"}
+{"event": "worktree.create.after", "ts": 1777887507.68143, "worktree": "frontend"}
+{"event": "worktree.create.before", "ts": 1777887507.681626, "worktree": "backend"}
+{"event": "worktree.create.after", "ts": 1777887507.705555, "worktree": "backend"}
+{"event": "worktree.enter", "ts": 1777887608.796413, "worktree": "backend", "path": "/Users/liyuping/Workspace/claude/my-learn-claude-code/.worktrees/backend"}
+{"event": "worktree.enter", "ts": 1777888361.1881778, "worktree": "frontend", "path": "/Users/liyuping/Workspace/claude/my-learn-claude-code/.worktrees/frontend"}

@@ -6,7 +6,7 @@ from llm.client import TOOLS
 from util.memory import MemoryManager
 from pathlib import Path
 from util.system_prompt import SystemPromptBuilder
-from util.task import TaskManager,TASKS_DIR
+from util.task import TaskManager,TASKS_DIR,TASKS
 
 WORKDIR = Path.cwd()
 
@@ -19,7 +19,8 @@ TASK_TOOLS = TOOLS + [{"name": "save_memory", "description": "Save a persistent 
          "content": {"type": "string", "description": "Full memory content (multi-line OK)"},
      }, "required": ["name", "description", "type", "content"]}},]
 
-TASK_TOOLS = TASK_TOOLS + [{"name": "task_create", "description": "Create a new task.",
+TASK_TOOLS = TASK_TOOLS + [
+    {"name": "task_create", "description": "Create a new task.",
      "input_schema": {"type": "object", "properties": {"subject": {"type": "string"}, "description": {"type": "string"}}, "required": ["subject"]}},
     {"name": "task_update", "description": "Update a task's status, owner, or dependencies.",
      "input_schema": {"type": "object", "properties": {"task_id": {"type": "integer"}, "status": {"type": "string", "enum": ["pending", "in_progress", "completed", "deleted"]}, "owner": {"type": "string", "description": "Set when a teammate claims the task"}, "blocks": {"type": "array", "items": {"type": "integer"}}, "add_blocks": {"type": "array", "items": {"type": "integer"}}}, "required": ["task_id"]}},
