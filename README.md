@@ -1,3 +1,5 @@
+
+
 # 我的 Claude Code 底层原理学习笔记
 
 一个用于学习和实践 Claude Code 底层原理的项目。基于 [shareAI-lab/learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) 改造，专注于通过大量调试日志看懂 AI agent 的内部运行机制。
@@ -148,7 +150,7 @@ client = anthropic.Anthropic(
 )
 ```
 
-如需切换为 Claude，直接配置 `ANTHROPIC_API_KEY` 和 `ANTHROPIC_BASE_URL` 即可。
+如需切换为 Claude，需修改 `llm/client.py` 中的 `MODEL` 变量（例如改为 `claude-3-5-sonnet-20241022`），并配置对应的 `ANTHROPIC_API_KEY` 和 `ANTHROPIC_BASE_URL` 即可。
 
 ## 环境变量
 
